@@ -8,7 +8,7 @@
 
   - Two Spring Boot Web Flux endpoints:
     - Details about cards for specified power of attorney:<br>
-    http://localhost:50125/rabobank/api/exercise/power-of-attorney/0003/cards
+    http://localhost:50125/rabobank/api/exercise/power-of-attorney/0001/cards
     -  Detail about card for the specified grantee:<br>
     http://localhost:50125/rabobank/api/exercise/power-of-attorney/card/2222?grantee=Fellowship%20of%20the%20ring   
   - API composition done with CompletableFutures and Project Reactor. 
