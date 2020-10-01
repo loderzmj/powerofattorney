@@ -1,0 +1,15 @@
+server:
+  port: 50125
+  ssl:
+    enabled: false
+    key-store-type: PKCS12 
+    key-store: classpath:keystore/dragomir.p12
+    key-store-password: dragomir
+    key-alias: dragomir
+
+rabobank:
+ json-stub:
+  url: http://localhost:8080
+
+
+ 
