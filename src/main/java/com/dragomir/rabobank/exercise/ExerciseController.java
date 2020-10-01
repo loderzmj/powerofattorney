@@ -65,7 +65,7 @@ public class ExerciseController {
 
 	}
 
-	@GetMapping("/cards/{id}")
+	@GetMapping("/power-of-attorney/card/{id}")
 	public Mono<CardInfo> getCardInfoForGrantee(@PathVariable("id") @NotNull String id,
 			@NotNull @RequestParam String grantee) {
 
