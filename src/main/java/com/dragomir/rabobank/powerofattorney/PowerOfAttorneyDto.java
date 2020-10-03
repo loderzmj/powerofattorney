@@ -2,10 +2,6 @@ package com.dragomir.rabobank.powerofattorney;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import io.swagger.client.model.Authorization;
-import io.swagger.client.model.CardReference;
 import io.swagger.client.model.Direction;
 import lombok.Data;
 

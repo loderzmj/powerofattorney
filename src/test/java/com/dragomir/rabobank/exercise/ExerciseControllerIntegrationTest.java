@@ -10,25 +10,25 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @TestPropertySource(locations = "classpath:application.yaml")
-public class ExerciseControllerIntegrationTest {
+class ExerciseControllerIntegrationTest {
 
 	@Autowired
 	private WebTestClient webTestClient;
 
 	@Test
-	public void givenNotExistingPowerOfAttorney_whenGetCardsForPowerOfAttorney_thenReturn404() throws Exception {
+	void givenNotExistingPowerOfAttorney_whenGetCardsForPowerOfAttorney_thenReturn404() throws Exception {
 		webTestClient.get().uri("/rabobank/api/exercise/power-of-attorney/{id}/cards", "1").exchange()//
 				.expectStatus().isNotFound();
 	}
 
 	@Test
-	public void givenPowerOfAttorneyWithoutCards_whenGetCardsForPowerOfAttorney_thenReturnEmpty() throws Exception {
+	void givenPowerOfAttorneyWithoutCards_whenGetCardsForPowerOfAttorney_thenReturnEmpty() throws Exception {
 		String expected = "[]";
 		assertExpectedResponseForCard("0003", "[]");
 	}
 
 	@Test
-	public void givenPowerOfAttorneyWithoutCards_whenGetCardsForPowerOfAttorney_thenReturnCards() throws Exception {
+	void givenPowerOfAttorneyWithoutCards_whenGetCardsForPowerOfAttorney_thenReturnCards() throws Exception {
 		String expected = "[{\"id\":\"3333\",\"holder\":\"Boromir\",\"cardNumber\":5075},{\"id\":\"2222\",\"holder\":\"Aragorn\",\"cardNumber\":6527},{\"id\":\"1111\",\"holder\":\"Frodo Basggins\",\"cardNumber\":1234}]";
 		assertExpectedResponseForCard("0001", expected);
 	}

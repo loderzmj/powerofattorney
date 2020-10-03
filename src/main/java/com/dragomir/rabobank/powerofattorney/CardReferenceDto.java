@@ -1,8 +1,5 @@
 package com.dragomir.rabobank.powerofattorney;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import io.swagger.client.model.CardType;
 import lombok.Data;
 
 @Data

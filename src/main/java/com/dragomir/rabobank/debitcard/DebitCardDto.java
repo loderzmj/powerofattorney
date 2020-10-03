@@ -1,7 +1,5 @@
 package com.dragomir.rabobank.debitcard;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import io.swagger.client.model.Limit;
 import lombok.Data;
 

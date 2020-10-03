@@ -1,10 +1,5 @@
 package com.dragomir.rabobank.powerofattorney;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import io.swagger.client.model.Authorization;
-
 public enum AuthorizationDtoType {
 
 	  DEBIT_CARD("DEBIT_CARD"),

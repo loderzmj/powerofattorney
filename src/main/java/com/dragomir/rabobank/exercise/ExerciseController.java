@@ -6,11 +6,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.ForbiddenException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,11 +28,11 @@ import com.dragomir.rabobank.powerofattorney.CardReferenceDto;
 import com.dragomir.rabobank.powerofattorney.PowerOfAttorneyDto;
 import com.dragomir.rabobank.powerofattorney.PowerOfAttorneyProxy;
 import com.dragomir.rabobank.powerofattorney.PowerOfAttorneyReferenceDto;
+import com.dragomir.rabobank.powerofattorney.ApiServiceException;
 
 import lombok.Value;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 @RequestMapping("/rabobank/api/exercise")
@@ -83,32 +80,32 @@ public class ExerciseController {
 			for (CompletableFuture<PowerOfAttorneyDto> poaFuture : poaFutures) {
 
 				PowerOfAttorneyDto powerOfAttorneyDto = poaFuture.get();
-				if (Objects.equals(powerOfAttorneyDto.getGrantee(), grantee) && powerOfAttorneyDto.getCards().stream()
-						.anyMatch(cardReference -> Objects.equals(cardReference.getId(), id))) {
+				if (Objects.equals(powerOfAttorneyDto.getGrantee(), grantee))  {
 					Optional<CardReferenceDto> cardReferenceOpt = powerOfAttorneyDto.getCards().stream()
 							.filter(cardReference -> Objects.equals(cardReference.getId(), id)).findFirst();
-					if (isGranteeAuthorizedForCard(powerOfAttorneyDto, cardReferenceOpt.get())) {
-						return getCardInfo(cardReferenceOpt.get());
-					} else {
-						throw new HttpClientErrorException(HttpStatus.FORBIDDEN);
-					}
+					if (cardReferenceOpt.isPresent()) {
+						if (isGranteeAuthorizedForCard(powerOfAttorneyDto, cardReferenceOpt.get())) {
+							return getCardInfo(cardReferenceOpt.get());
+						} else {
+							throw new ApiServiceException(HttpStatus.FORBIDDEN, String.format("Grantee %s not authorized for %s", grantee, id));
+						}
+					}					
 				}
-
 			}
 
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 		} catch (ExecutionException e) {
-			throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+			throw new ApiServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "Server error");
 		}
 
-		throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+		throw new ApiServiceException(HttpStatus.NOT_FOUND, String.format("Card with id: %s", id));
 
 	}
 
-	@ExceptionHandler(HttpClientErrorException.class)
+	@ExceptionHandler(ApiServiceException.class)
 	public ResponseEntity<ErrorMessage> exceptionHandler(Exception ex) {
-		HttpClientErrorException exception = (HttpClientErrorException) ex;
+		ApiServiceException exception = (ApiServiceException) ex;
 		return new ResponseEntity<>(new ErrorMessage(exception.getMessage()), exception.getStatusCode());
 	}
 
@@ -122,14 +119,12 @@ public class ExerciseController {
 			return powerOfAttorneyDto.getAuthorizations().contains(AuthorizationDtoType.DEBIT_CARD);
 
 		default:
-			throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+			throw new ApiServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "Wrong card type");
 
 		}
-
 	}
 
 	private Mono<CardInfo> getCardInfo(CardReferenceDto cardReference) {
-		Mono<CardInfo> result;
 		switch (cardReference.getType()) {
 		case CREDIT_CARD:
 			return creditCardProxy.getCreditCardDetail(cardReference.getId())//
@@ -148,11 +143,8 @@ public class ExerciseController {
 							.build());
 
 		default:
-			throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
-
-			
+			throw new ApiServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "Wrong card type");			
 		}
-
 	}
 	
 	@Value
